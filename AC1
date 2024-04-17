@@ -1,0 +1,98 @@
+# Define a class for managing buses
+class Bus:
+    def __init__(self, bus_number, capacity, route):
+        self.bus_number = bus_number
+        self.capacity = capacity
+        self.route = route
+        self.available_seats = capacity
+        self.seat_map = [False] * capacity  # Initialize seat map to track seat availability
+
+    def book_seat(self, seat_number):
+        if seat_number < 0 or seat_number >= self.capacity:
+            return False
+        if self.seat_map[seat_number]:
+            return False
+        self.seat_map[seat_number] = True
+        self.available_seats -= 1
+        return True
+
+    def cancel_seat(self, seat_number):
+        if seat_number < 0 or seat_number >= self.capacity:
+            return False
+        if not self.seat_map[seat_number]:
+            return False
+        self.seat_map[seat_number] = False
+        self.available_seats += 1
+        return True
+
+# Define a class for managing bookings
+class Booking:
+    def __init__(self):
+        self.bookings = {}
+
+    def make_booking(self, user_id, bus_number, seat_number):
+        if bus_number not in self.bookings:
+            self.bookings[bus_number] = {}
+        if seat_number not in self.bookings[bus_number]:
+            self.bookings[bus_number][seat_number] = user_id
+            return True
+        else:
+            return False
+
+    def cancel_booking(self, bus_number, seat_number):
+        if bus_number in self.bookings and seat_number in self.bookings[bus_number]:
+            del self.bookings[bus_number][seat_number]
+            return True
+        else:
+            return False
+
+# Define a class for managing users
+class User:
+    def __init__(self, user_id, name, email):
+        self.user_id = user_id
+        self.name = name
+        self.email = email
+        self.bookings = []
+
+    def add_booking(self, bus_number, seat_number):
+        self.bookings.append((bus_number, seat_number))
+
+    def cancel_booking(self, bus_number, seat_number):
+        if (bus_number, seat_number) in self.bookings:
+            self.bookings.remove((bus_number, seat_number))
+            return True
+        else:
+            return False
+
+# Define a class for managing payment processing
+class Payment:
+    def process_payment(self, user_id, amount):
+        # Placeholder for payment processing logic
+        return True
+
+# Example usage
+if __name__ == "__main__":
+    # Initialize buses
+    bus1 = Bus("B001", 30, "Route1")
+    bus2 = Bus("B002", 40, "Route2")
+
+    # Initialize booking manager
+    booking_manager = Booking()
+
+    # Initialize user
+    user1 = User("User1", "Alice", "alice@example.com")
+
+    # Book a seat
+    seat_number = 1
+    if bus1.book_seat(seat_number) and booking_manager.make_booking(user1.user_id, bus1.bus_number, seat_number):
+        user1.add_booking(bus1.bus_number, seat_number)
+        print(f"Booking successful for user {user1.name} on bus {bus1.bus_number}, seat {seat_number}")
+    else:
+        print("Booking failed")
+
+    # Cancel booking
+    if booking_manager.cancel_booking(bus1.bus_number, seat_number):
+        user1.cancel_booking(bus1.bus_number, seat_number)
+        print(f"Canceled booking for user {user1.name} on bus {bus1.bus_number}, seat {seat_number}")
+    else:
+        print("Cancellation failed")
